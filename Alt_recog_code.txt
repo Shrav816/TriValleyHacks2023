@@ -1,0 +1,73 @@
+# Formats methods and functions (single and multi variable) from spoken speech to code
+
+# Parses initial query by word "stop"
+endword = " stop "
+queryinput = input().lower().split(endword)
+
+# Parses query into individual words
+queries = []
+for query in queryinput:
+    queries.append(query.split())
+
+datatypes = ["quote", "integer", "float", "boolean", "list"]
+functions = ["print", "len", "range", "map", "input", "type", "abs", "str", "int", "float", "bool", "max",
+             "min", "sorted", "sum", "enumerate"]
+methods = ["lower", "upper", "strip", "split", "replace", "join", "append", "remove", "count", "clear", "keys",
+           "values", "index", "sort", "copy", "insert", "count", "isalpha", "isdigit"]
+
+# Final result string
+result = ""
+
+# Formats a string (input: quote input quote, output: "input")
+def createString(query, quoteLocation):
+    string = ""
+    for s in query[quoteLocation[0] + 1: quoteLocation[1]]:
+        string += s + " "
+    string = string[:len(string) - 1]
+    return "\"" + string + "\""
+
+# Formats a method (input: name method, output: name.method())
+def createMethod(query):
+    if "quote" in query:
+        string = createString(query, [i for i, x in enumerate(query) if x == "quote"])
+    else:
+        string = ""
+        for s in query[:len(string) - 1]:
+            string += s
+    return string + "." + query[len(query) - 1] + "()"
+
+# Formats a function (input: function input, output: function(input))
+def createFunction(query):
+    if "quote" in query:
+        string = createString(query, [i for i, x in enumerate(query) if x == "quote"])
+    else:
+        if len(query[1:]) == 1:
+            string = ""
+            for s in query[1:]:
+                string += s
+        else:
+            string = ""
+            for i in range(1, len(query)):
+                if i == len(query) - 1:
+                    string += query[i]
+                else:
+                    string += query[i] + ", "
+
+    return query[0] + "(" + string + ")"
+
+# Iterating through every query
+for query in queries:
+    quote = [i for i, x in enumerate(query) if x == "quote"] # Locates start and end of strings
+    # Iterating through each word in the query
+    for entryIndex in range(len(query)):
+        if query[entryIndex] in methods:
+            result += createMethod(query)
+            if "quote" in query:
+                quote = quote[2:]
+        elif query[entryIndex] in functions:
+            result += createFunction(query)
+            if "quote" in query:
+                quote = quote[2:]
+    result += "\n"
+
+print(result)
